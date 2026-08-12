@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gitprac-12082026 | Azure Terraform DevOps Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-card-hover: rgba(31, 41, 55, 0.9);
+      --accent-azure: #0078d4;
+      --accent-glow: #00bcff;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-code: 'Fira Code', monospace;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: rgba(255, 255, 255, 0.8);
+      --bg-card-hover: rgba(241, 245, 249, 1);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --glass-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-azure), var(--accent-purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(0, 120, 212, 0.4);
+    }
+
+    .brand-logo svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #ffffff, var(--accent-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-title p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 0.45rem 1rem 0.45rem 2.2rem;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      width: 220px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-azure);
+      box-shadow: 0 0 10px rgba(0, 120, 212, 0.25);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      fill: var(--text-muted);
+    }
+
+    .btn-icon {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-azure);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(0, 120, 212, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(0, 120, 212, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0, 188, 255, 0.2) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+    }
+
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .hero-header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-header p {
+      color: var(--text-muted);
+      max-width: 750px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .badge-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: rgba(0, 120, 212, 0.2);
+      color: var(--accent-glow);
+      border: 1px solid rgba(0, 188, 255, 0.3);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge.purple {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .badge.green {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-box {
+      background: rgba(17, 24, 39, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-glow);
+      font-family: var(--font-code);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    /* Tabs Navigation */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-azure);
+      border-bottom-color: var(--accent-azure);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section 1: Architecture Visualizer */
+    .topology-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      min-height: 500px;
+    }
+
+    .topology-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .env-selector {
+      display: flex;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .env-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.4rem 1rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .env-btn.active {
+      background: var(--accent-azure);
+      color: white;
+    }
+
+    /* SVG Canvas Graph */
+    .topology-canvas-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: rgba(5, 8, 15, 0.6);
+      border-radius: 12px;
+      border: 1px dashed var(--border-color);
+      padding: 1rem;
+    }
+
+    svg.topology-svg {
+      width: 100%;
+      min-width: 900px;
+      height: 480px;
+    }
+
+    .node-group {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .node-group:hover {
+      filter: drop-shadow(0 0 8px var(--accent-azure));
+    }
+
+    .node-box {
+      fill: var(--bg-secondary);
+      stroke: var(--accent-azure);
+      stroke-width: 2;
+      rx: 8;
+    }
+
+    .node-box.rg { stroke: var(--accent-purple); fill: rgba(139, 92, 246, 0.1); }
+    .node-box.vnet { stroke: var(--accent-azure); fill: rgba(0, 120, 212, 0.1); }
+    .node-box.subnet { stroke: var(--accent-green); fill: rgba(16, 185, 129, 0.1); }
+    .node-box.vm { stroke: var(--accent-amber); fill: rgba(245, 158, 11, 0.1); }
+    .node-box.pip { stroke: #ec4899; fill: rgba(236, 72, 153, 0.1); }
+
+    .node-title {
+      fill: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-main);
+    }
+
+    .node-sub {
+      fill: var(--text-muted);
+      font-size: 11px;
+      font-family: var(--font-code);
+    }
+
+    /* Drawer / Modal Info */
+    .info-drawer {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .info-drawer.active {
+      display: block;
+    }
+
+    /* Section 2: Modules Grid */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .module-card:hover {
+      border-color: var(--accent-azure);
+      box-shadow: 0 4px 20px rgba(0, 120, 212, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .module-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-code);
+    }
+
+    .module-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+
+    .module-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-sm {
+      background: var(--accent-azure);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-sm:hover {
+      background: #005a9e;
+    }
+
+    /* Section 3: Environment Comparison Table */
+    .compare-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    table.compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    table.compare-table th, table.compare-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.compare-table th {
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--accent-glow);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    table.compare-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Section 4: Command Generator */
+    .cmd-builder {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .cmd-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .form-group select, .form-group input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .cmd-terminal {
+      background: #05080f;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-family: var(--font-code);
+      font-size: 0.9rem;
+      color: #34d399;
+      position: relative;
+      margin-top: 1rem;
+      word-break: break-all;
+    }
+
+    .cmd-terminal .copy-btn {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+
+    .cmd-terminal .copy-btn:hover {
+      background: var(--accent-azure);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      max-width: 750px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .modal-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      font-family: var(--font-code);
+      font-size: 0.85rem;
+      background: #05080f;
+      color: #e5e7eb;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4 0-2.05 1.53-3.76 3.56-3.97l1.07-.11.5-.95C8.08 7.14 9.94 6 12 6c2.62 0 4.88 1.86 5.39 4.43l.3 1.5 1.53.11c1.56.1 2.78 1.41 2.78 2.96 0 1.65-1.35 3-3 3z"/></svg>
+      </div>
+      <div class="brand-title">
+        <h1>gitprac-12082026</h1>
+        <p>Azure Terraform IaC Portal</p>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="searchInput" placeholder="Search modules, VMs, RGs...">
+      </div>
+      <button class="btn-icon" id="themeToggle" title="Toggle Theme">🌙</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Banner -->
+    <div class="hero-card">
+      <div class="hero-header">
+        <div>
+          <h2>Azure Terraform Modular Infrastructure</h2>
+          <p>Developers aur DevOps Engineers ke liye interactive architecture explorer, module directory, environment inspector, aur command generator.</p>
+        </div>
+        <div class="badge-group">
+          <span class="badge">Terraform v1.0+</span>
+          <span class="badge purple">AzureRM Provider</span>
+          <span class="badge green">Dev & Prod Ready</span>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Child Modules</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">2</div>
+          <div class="stat-label">Environments (Dev/Prod)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">4+</div>
+          <div class="stat-label">Virtual Machines</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Dynamic Map Loop</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('topology', event)">🗺️ Interactive Topology Graph</button>
+      <button class="tab-btn" onclick="switchTab('modules', event)">📦 Child Modules (14)</button>
+      <button class="tab-btn" onclick="switchTab('compare', event)">⚖️ Dev vs Prod Environment</button>
+      <button class="tab-btn" onclick="switchTab('commands', event)">💻 Terraform Command Builder</button>
+      <button class="tab-btn" onclick="switchTab('quickstart', event)">📖 Developer Quickstart</button>
+    </div>
+
+    <!-- TAB 1: Topology Graph -->
+    <div id="tab-topology" class="tab-content active">
+      <div class="topology-container">
+        <div class="topology-controls">
+          <div>
+            <h3>Infrastructure Topology Map</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted);">Node par click karke detailed metadata aur connections dekhein.</p>
+          </div>
+          <div class="env-selector">
+            <button class="env-btn active" id="btn-env-dev" onclick="renderTopology('dev')">Dev Environment</button>
+            <button class="env-btn" id="btn-env-prod" onclick="renderTopology('prod')">Prod Environment</button>
+          </div>
+        </div>
+
+        <div class="topology-canvas-wrapper">
+          <svg class="topology-svg" id="topologySvg" viewBox="0 0 950 450">
+            <!-- Dynamic SVG elements inserted via JS -->
+          </svg>
+        </div>
+
+        <div class="info-drawer" id="infoDrawer">
+          <h4 id="drawerTitle" style="color:var(--accent-glow); margin-bottom:0.5rem;">Resource Details</h4>
+          <p id="drawerDesc" style="font-size:0.85rem; color:var(--text-muted); font-family:var(--font-code);"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Modules Grid -->
+    <div id="tab-modules" class="tab-content">
+      <div class="modules-grid" id="modulesGrid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 3: Dev vs Prod Compare -->
+    <div id="tab-compare" class="tab-content">
+      <div class="compare-container">
+        <h3 style="margin-bottom:1rem;">Environment Specifications Comparison</h3>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Feature / Component</th>
+              <th>DEV Environment (`parent_modules/dev`)</th>
+              <th>PROD Environment (`parent_modules/prod`)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Resource Groups</strong></td>
+              <td>`mod-rg8`, `git-rg11` (Central India)</td>
+              <td>`vmrg1-dev`, `vmrg2-dev` (Central India)</td>
+            </tr>
+            <tr>
+              <td><strong>Virtual Networks</strong></td>
+              <td>`mod-vnet8` (`10.0.0.0/16`)</td>
+              <td>`vmvnet1-dev` (`10.0.0.0/16`), `vmvnet2-dev` (`10.1.0.0/16`)</td>
+            </tr>
+            <tr>
+              <td><strong>Subnets</strong></td>
+              <td>`modsubnet8` (`10.0.1.0/24`), `modsubnet9` (`10.0.2.0/24`)</td>
+              <td>`vmsubnet1-dev` (`10.0.1.0/24`), `vmsubnet2-dev` (`10.0.2.0/24`), `AzureBastionSubnet` (`10.0.4.0/26`)</td>
+            </tr>
+            <tr>
+              <td><strong>Virtual Machines</strong></td>
+              <td>`mod-vm8`, `mod-vm9` (Ubuntu 22.04 LTS, Standard_B1s)</td>
+              <td>`shiva-vm1`, `shiva-vm2` (Ubuntu 22.04 LTS, Standard_B1s)</td>
+            </tr>
+            <tr>
+              <td><strong>Public IPs</strong></td>
+              <td>`mod-pip1`, `mod-pip2` (Dynamic Allocation)</td>
+              <td>`vmpip1`, `vmpip2` (Dynamic Allocation)</td>
+            </tr>
+            <tr>
+              <td><strong>Optional Modules</strong></td>
+              <td>Bastion, NSG, Storage Accounts available in child modules</td>
+              <td>Bastion Host (`bastion-production1914`), NSG rules configured</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Command Generator -->
+    <div id="tab-commands" class="tab-content">
+      <div class="cmd-builder">
+        <h3>Interactive Terraform Command Generator</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">Apne required action aur environment choose karke ready-to-run shell commands copy karein.</p>
+
+        <div class="cmd-options">
+          <div class="form-group">
+            <label>Target Environment</label>
+            <select id="cmdEnv" onchange="generateCmd()">
+              <option value="dev">DEV (parent_modules/dev)</option>
+              <option value="prod">PROD (parent_modules/prod)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Terraform Action</label>
+            <select id="cmdAction" onchange="generateCmd()">
+              <option value="init">terraform init</option>
+              <option value="plan">terraform plan</option>
+              <option value="apply">terraform apply</option>
+              <option value="destroy">terraform destroy</option>
+              <option value="fmt">terraform fmt -recursive</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Target Specific Module (Optional)</label>
+            <select id="cmdTarget" onchange="generateCmd()">
+              <option value="">All Resources</option>
+              <option value="module.resource_group">module.resource_group</option>
+              <option value="module.virtual_network">module.virtual_network</option>
+              <option value="module.subnet">module.subnet</option>
+              <option value="module.pip_name">module.pip_name</option>
+              <option value="module.virtual_machine">module.virtual_machine</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Auto Approve Flag</label>
+            <select id="cmdApprove" onchange="generateCmd()">
+              <option value="false">No (-auto-approve off)</option>
+              <option value="true">Yes (-auto-approve)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cmd-terminal">
+          <button class="copy-btn" onclick="copyCmd()">Copy Command</button>
+          <span style="color:var(--text-muted);"># Run this command in terminal:</span><br>
+          <span id="cmdOutput">cd parent_modules/dev && terraform init</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: Developer Quickstart -->
+    <div id="tab-quickstart" class="tab-content">
+      <div class="compare-container">
+        <h3>📖 Developer Getting Started Guide</h3>
+        <br>
+        <h4 style="color:var(--accent-glow);">1. Prerequisites</h4>
+        <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;">Ensure you have the following installed on your machine:</p>
+        <ul style="margin-left:1.5rem; font-size:0.9rem; color:var(--text-muted); line-height:1.8;">
+          <li><strong>Azure CLI</strong>: Run `az login` to authenticate with your Azure Subscription.</li>
+          <li><strong>Terraform CLI</strong>: Version 1.0 or higher. Check with `terraform version`.</li>
+          <li><strong>Git</strong>: For version control and tracking changes.</li>
+        </ul>
+
+        <br>
+        <h4 style="color:var(--accent-glow);">2. Deployment Workflow</h4>
+        <div style="background:#05080f; padding:1rem; border-radius:8px; font-family:var(--font-code); font-size:0.85rem; color:#34d399; margin-top:0.5rem;">
+          # Navigate to environment directory<br>
+          cd parent_modules/dev<br><br>
+          # Initialize Terraform modules & providers<br>
+          terraform init<br><br>
+          # Review execution plan<br>
+          terraform plan -var-file="terraform.tfvars"<br><br>
+          # Deploy Azure infrastructure<br>
+          terraform apply -var-file="terraform.tfvars" -auto-approve
+        </div>
+
+        <br>
+        <h4 style="color:var(--accent-glow);">3. Module Architecture Best Practices</h4>
+        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6;">
+          Har module child modules folder me localized logic maintain karta hai. Parent module `for_each` loop ke zariye parameters accept karta hai, jisse dynamic multi-resource creation bohot flexible ho jaati hai!
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal for Code Preview -->
+  <div class="modal-overlay" id="codeModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle" style="font-family:var(--font-code);">module_name/main.tf</h3>
+        <button class="btn-icon" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Code snippet inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>gitprac-12082026 &bull; Designed for DevOps & Infrastructure Engineers &bull; Powered by Terraform & AzureRM</p>
+  </footer>
+
+  <script>
+    // Data Store for 14 Child Modules
+    const modulesData = [
+      {
+        name: "azurerm_resource_group",
+        category: "Core",
+        desc: "Azure Resource Groups create karne ke liye modular container template.",
+        vars: ["rgs"],
+        code: `resource "azurerm_resource_group" "rgprac" {\n  for_each = var.rgs\n  name     = each.value.name\n  location = each.value.location\n}`
+      },
+      {
+        name: "azurerm_vnet",
+        category: "Network",
+        desc: "Virtual Networks manage aur address space allocate karne ka module.",
+        vars: ["vnets"],
+        code: `resource "azurerm_virtual_network" "vnetsprac" {\n  for_each            = var.vnets\n  name                = each.value.name\n  location            = each.value.location\n  resource_group_name = each.value.resource_group_name\n  address_space       = each.value.address_space\n}`
+      },
+      {
+        name: "azurerm_subnet",
+        category: "Network",
+        desc: "Subnet divisions aur CIDR blocks configure karne ke liye module.",
+        vars: ["subnets"],
+        code: `resource "azurerm_subnet" "subnetsp" {\n  for_each             = var.subnets\n  name                 = each.value.name\n  resource_group_name  = each.value.resource_group_name\n  virtual_network_name = each.value.virtual_network_name\n  address_prefixes     = each.value.address_prefixes\n}`
+      },
+      {
+        name: "azurerm_virtual_machine",
+        category: "Compute",
+        desc: "Linux Virtual Machines, NICs aur Public IPs provisioning module.",
+        vars: ["vms"],
+        code: `resource "azurerm_network_interface" "nic" {\n  for_each = var.vms\n  name                = each.value.nic_name\n  location            = each.value.location_name\n  resource_group_name = each.value.rg_name\n  ip_configuration {\n    name                          = "internal"\n    subnet_id                     = data.azurerm_subnet.subnetx[each.key].id\n    public_ip_address_id          = data.azurerm_public_ip.pipex[each.key].id\n    private_ip_address_allocation = "Dynamic"\n  }\n}\n\nresource "azurerm_linux_virtual_machine" "linux_vm" {\n  for_each = var.vms\n  name                = each.value.vm-name\n  resource_group_name = each.value.rg_name\n  location            = each.value.location_name\n  size                = each.value.size-name\n  admin_username      = each.value.admin_username\n  admin_password      = each.value.admin_password\n  network_interface_ids = [azurerm_network_interface.nic[each.key].id]\n}`
+      },
+      {
+        name: "azurerm_public_ip_address",
+        category: "Network",
+        desc: "Azure Public IP address allocation (Dynamic/Static).",
+        vars: ["pips"],
+        code: `resource "azurerm_public_ip" "pip" {\n  for_each            = var.pips\n  name                = each.value.name\n  resource_group_name = each.value.resource_group_name\n  location            = each.value.location\n  allocation_method   = "Dynamic"\n}`
+      },
+      {
+        name: "azurerm_NIC",
+        category: "Network",
+        desc: "Standalone Network Interface Cards configuration.",
+        vars: ["nics"],
+        code: `resource "azurerm_network_interface" "nic" {\n  for_each            = var.nics\n  name                = each.value.name\n  location            = each.value.location\n  resource_group_name = each.value.resource_group_name\n}`
+      },
+      {
+        name: "azurerm_bastion",
+        category: "Security",
+        desc: "Secure RDP/SSH access ke liye Azure Bastion Host provisioning.",
+        vars: ["bastion_hosts"],
+        code: `resource "azurerm_bastion_host" "bastion" {\n  for_each            = var.bastion_hosts\n  name                = each.value.name\n  location            = each.value.location\n  resource_group_name = each.value.resource_group_name\n}`
+      },
+      {
+        name: "azurerm_loadbalancer",
+        category: "Network",
+        desc: "Azure Load Balancer & Backend Pool configuration.",
+        vars: ["lbs"],
+        code: `# Load Balancer Module Definition`
+      },
+      {
+        name: "azurerm_NAT_gateway",
+        category: "Network",
+        desc: "Outbound internet connectivity ke liye NAT Gateway module.",
+        vars: ["nats"],
+        code: `# NAT Gateway Module Definition`
+      },
+      {
+        name: "azurerm_nsg",
+        category: "Security",
+        desc: "Network Security Group (NSG) container module.",
+        vars: ["nsgs"],
+        code: `resource "azurerm_network_security_group" "nsg" {\n  for_each            = var.nsgs\n  name                = each.value.name\n  location            = each.value.location\n  resource_group_name = each.value.resource_group_name\n}`
+      },
+      {
+        name: "azurerm_nsg-rules",
+        category: "Security",
+        desc: "Security rules (Inbound/Outbound port filtering) module.",
+        vars: ["nsg_rules"],
+        code: `# Security Rules Module Definition`
+      },
+      {
+        name: "azurerm_nsg_association",
+        category: "Security",
+        desc: "NSG Subnet Association binding module.",
+        vars: ["associations"],
+        code: `# NSG Association Module Definition`
+      },
+      {
+        name: "azurerm_storage_account",
+        category: "Storage",
+        desc: "Azure Storage Accounts (Blob/Table/Queue) provisioning.",
+        vars: ["storage_accounts"],
+        code: `resource "azurerm_storage_account" "sa" {\n  for_each                 = var.storage_accounts\n  name                     = each.value.name\n  resource_group_name      = each.value.resource_group_name\n  location                 = each.value.location\n  account_tier             = "Standard"\n  account_replication_type = "LRS"\n}`
+      },
+      {
+        name: "azurerm_vnet_peering",
+        category: "Network",
+        desc: "VNet Peering module for cross-network connectivity.",
+        vars: ["peerings"],
+        code: `# VNet Peering Module Definition`
+      }
+    ];
+
+    // Theme Toggle
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      themeBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    });
+
+    // Tab Switcher
+    function switchTab(tabId, evt) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      if(evt && evt.target) evt.target.classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    // Render Modules Cards
+    function renderModules(filter = '') {
+      const grid = document.getElementById('modulesGrid');
+      grid.innerHTML = '';
+
+      const filtered = modulesData.filter(m => 
+        m.name.toLowerCase().includes(filter.toLowerCase()) || 
+        m.category.toLowerCase().includes(filter.toLowerCase()) ||
+        m.desc.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      filtered.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'module-card';
+        card.innerHTML = `
+          <div>
+            <div class="module-header">
+              <span class="module-name">${m.name}</span>
+              <span class="badge ${m.category === 'Compute' ? 'purple' : m.category === 'Security' ? 'green' : ''}">${m.category}</span>
+            </div>
+            <p class="module-desc">${m.desc}</p>
+          </div>
+          <div class="module-footer">
+            <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-code);">Input: var.${m.vars[0]}</span>
+            <button class="btn-sm" onclick="openCodeModal('${m.name}')">View Code</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Search Input
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      renderModules(e.target.value);
+    });
+
+    // Modal logic
+    function openCodeModal(moduleName) {
+      const mod = modulesData.find(m => m.name === moduleName);
+      if(!mod) return;
+      document.getElementById('modalTitle').textContent = `child_modules/${mod.name}/main.tf`;
+      document.getElementById('modalBody').textContent = mod.code;
+      document.getElementById('codeModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('codeModal').classList.remove('active');
+    }
+
+    // Render Interactive Topology Graph
+    function renderTopology(env = 'dev') {
+      document.getElementById('btn-env-dev').classList.toggle('active', env === 'dev');
+      document.getElementById('btn-env-prod').classList.toggle('active', env === 'prod');
+
+      const svg = document.getElementById('topologySvg');
+      svg.innerHTML = '';
+
+      if (env === 'dev') {
+        svg.innerHTML = `
+          <g class="node-group" onclick="showDrawer('Resource Group: mod-rg8', 'Location: centralindia | Subnets: 2 | VMs: 2')">
+            <rect class="node-box rg" x="30" y="40" width="890" height="370"/>
+            <text class="node-title" x="50" y="70">📦 Resource Group: mod-rg8 (Central India)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VNet: mod-vnet8', 'Address Space: 10.0.0.0/16 | Location: Central India')">
+            <rect class="node-box vnet" x="60" y="90" width="830" height="300"/>
+            <text class="node-title" x="80" y="115">🌐 Virtual Network: mod-vnet8 (10.0.0.0/16)</text>
+          </g>
+
+          <!-- Subnet 1 -->
+          <g class="node-group" onclick="showDrawer('Subnet: modsubnet8', 'CIDR: 10.0.1.0/24 | Attached to: mod-vm8')">
+            <rect class="node-box subnet" x="90" y="140" width="370" height="230"/>
+            <text class="node-title" x="110" y="165">🔒 Subnet: modsubnet8 (10.0.1.0/24)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VM: mod-vm8', 'Size: Standard_B1s | User: Shiva_devops1914 | PIP: mod-pip1')">
+            <rect class="node-box vm" x="110" y="190" width="330" height="70"/>
+            <text class="node-title" x="125" y="215">💻 VM: mod-vm8 (Standard_B1s)</text>
+            <text class="node-sub" x="125" y="240">NIC: vm-nic8 | PIP: mod-pip1</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('Public IP: mod-pip1', 'Method: Dynamic | RG: mod-rg8')">
+            <rect class="node-box pip" x="110" y="280" width="330" height="60"/>
+            <text class="node-title" x="125" y="305">🌍 Public IP: mod-pip1</text>
+            <text class="node-sub" x="125" y="325">Dynamic Public Allocation</text>
+          </g>
+
+          <!-- Subnet 2 -->
+          <g class="node-group" onclick="showDrawer('Subnet: modsubnet9', 'CIDR: 10.0.2.0/24 | Attached to: mod-vm9')">
+            <rect class="node-box subnet" x="490" y="140" width="370" height="230"/>
+            <text class="node-title" x="510" y="165">🔒 Subnet: modsubnet9 (10.0.2.0/24)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VM: mod-vm9', 'Size: Standard_B1s | User: Shiva_devops1914 | PIP: mod-pip2')">
+            <rect class="node-box vm" x="510" y="190" width="330" height="70"/>
+            <text class="node-title" x="525" y="215">💻 VM: mod-vm9 (Standard_B1s)</text>
+            <text class="node-sub" x="525" y="240">NIC: vm-nic9 | PIP: mod-pip2</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('Public IP: mod-pip2', 'Method: Dynamic | RG: mod-rg8')">
+            <rect class="node-box pip" x="510" y="280" width="330" height="60"/>
+            <text class="node-title" x="525" y="305">🌍 Public IP: mod-pip2</text>
+            <text class="node-sub" x="525" y="325">Dynamic Public Allocation</text>
+          </g>
+        `;
+      } else {
+        svg.innerHTML = `
+          <g class="node-group" onclick="showDrawer('Resource Group: vmrg1-dev', 'Location: centralindia | Production Tier')">
+            <rect class="node-box rg" x="30" y="40" width="890" height="370"/>
+            <text class="node-title" x="50" y="70">📦 Resource Group: vmrg1-dev (PROD - Central India)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VNet: vmvnet1-dev', 'Address Space: 10.0.0.0/16')">
+            <rect class="node-box vnet" x="60" y="90" width="830" height="300"/>
+            <text class="node-title" x="80" y="115">🌐 Virtual Network: vmvnet1-dev (10.0.0.0/16)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('Subnet: vmsubnet1-dev', 'CIDR: 10.0.1.0/24 | Attached: shiva-vm1, shiva-vm2')">
+            <rect class="node-box subnet" x="90" y="140" width="400" height="230"/>
+            <text class="node-title" x="110" y="165">🔒 Application Subnet: vmsubnet1-dev (10.0.1.0/24)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VM: shiva-vm1', 'Production VM 1 | Size: Standard_B1s | NIC: vm1-nic')">
+            <rect class="node-box vm" x="110" y="190" width="360" height="70"/>
+            <text class="node-title" x="125" y="215">💻 VM: shiva-vm1 (Standard_B1s)</text>
+            <text class="node-sub" x="125" y="240">NIC: vm1-nic | PIP: vmpip1</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('VM: shiva-vm2', 'Production VM 2 | Size: Standard_B1s | NIC: vm2-nic')">
+            <rect class="node-box vm" x="110" y="280" width="360" height="70"/>
+            <text class="node-title" x="125" y="305">💻 VM: shiva-vm2 (Standard_B1s)</text>
+            <text class="node-sub" x="125" y="330">NIC: vm2-nic | PIP: vmpip2</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('Subnet: AzureBastionSubnet', 'CIDR: 10.0.4.0/26 | Dedicated Bastion Management Subnet')">
+            <rect class="node-box subnet" x="510" y="140" width="360" height="230"/>
+            <text class="node-title" x="530" y="165">🛡️ Bastion Subnet (10.0.4.0/26)</text>
+          </g>
+
+          <g class="node-group" onclick="showDrawer('Bastion Host: bastion-production1914', 'Production Secure Access Gateway')">
+            <rect class="node-box pip" x="530" y="210" width="320" height="120"/>
+            <text class="node-title" x="545" y="245">🏰 Bastion: bastion-production1914</text>
+            <text class="node-sub" x="545" y="275">Target IP: bpip1914</text>
+          </g>
+        `;
+      }
+    }
+
+    function showDrawer(title, desc) {
+      document.getElementById('drawerTitle').textContent = title;
+      document.getElementById('drawerDesc').textContent = desc;
+      document.getElementById('infoDrawer').classList.add('active');
+    }
+
+    // Command Generator
+    function generateCmd() {
+      const env = document.getElementById('cmdEnv').value;
+      const action = document.getElementById('cmdAction').value;
+      const target = document.getElementById('cmdTarget').value;
+      const approve = document.getElementById('cmdApprove').value === 'true';
+
+      let cmd = `cd parent_modules/${env} && terraform ${action}`;
+      if(action === 'plan' || action === 'apply' || action === 'destroy') {
+        cmd += ` -var-file="terraform.tfvars"`;
+      }
+      if(target) {
+        cmd += ` -target=${target}`;
+      }
+      if(approve && (action === 'apply' || action === 'destroy')) {
+        cmd += ` -auto-approve`;
+      }
+
+      document.getElementById('cmdOutput').textContent = cmd;
+    }
+
+    function copyCmd() {
+      const text = document.getElementById('cmdOutput').textContent;
+      navigator.clipboard.writeText(text);
+      alert('Command copied to clipboard!');
+    }
+
+    // Initial Load
+    renderModules();
+    renderTopology('dev');
+    generateCmd();
+  </script>
+</body>
+</html>

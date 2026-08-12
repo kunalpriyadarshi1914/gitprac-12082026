@@ -7,6 +7,10 @@ rgs = {
     name     = "git-rg11"
     location = "centralindia"
   }
+  rg3 = {
+    name     = "git-rg12082016"
+    location = "centralindia"
+  }
 }
 subnets = {
   subnet1 = {
