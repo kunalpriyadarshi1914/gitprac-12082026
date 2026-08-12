@@ -4,7 +4,7 @@ rgs = {
     location = "centralindia"
   }
   rg2 = {
-    name     = "mod-rg11"
+    name     = "git-rg11"
     location = "centralindia"
   }
 }
