@@ -19,7 +19,7 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent-module/dev'
                 backendServiceArm: 'Azure subscription 1(2530114a-1411-4234-ad42-e376b6598826)'
                 backendAzureRmStorageAccountName: 'tfpipelinestg14082026'
                 backendAzureRmContainerName: 'tfpipelinecontainer1914'
