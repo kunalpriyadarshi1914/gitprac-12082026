@@ -63,3 +63,15 @@ vms = {
     admin_password       = "komalkunal@1914"
   }
 }
+pips = {
+  pip1 = {
+    pip_name            = "mod-pip1"
+    resource_group_name = "mod-rg8"
+    location            = "centralindia"
+  }
+  pip2 = {
+    pip_name            = "mod-pip2"
+    resource_group_name = "mod-rg8"
+    location            = "centralindia"
+  }
+}
