@@ -22,7 +22,7 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'init'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules/dev'
                 backendServiceArm: 'Azure subscription 1(2530114a-1411-4234-ad42-e376b6598826)'
                 backendAzureRmStorageAccountName: 'tfpipelinestg14082026'
                 backendAzureRmContainerName: 'tfpipelinecontainer1914'
@@ -36,7 +36,7 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'plan'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules/dev'
       - job: terraform_modular_structure_terraform_apply
         dependsOn: terraform_modular_structure_terraform_plan
         displayName: terraform_modular_structure_terraform_apply
@@ -45,7 +45,7 @@ stages:
               inputs:
                 provider: 'azurerm'
                 command: 'apply'
-                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules/dev'
                 commandOptions: '-auto-approve'
                 environmentServiceNameAzureRM: 'Azure subscription 1(2530114a-1411-4234-ad42-e376b6598826)'
 
