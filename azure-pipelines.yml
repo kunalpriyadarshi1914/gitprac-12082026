@@ -5,8 +5,9 @@ trigger:
 pool:
  vmImage: 'ubuntu-latest'
 
+#####################################STAGE1#############################
 stages:
-  - stage: terraform_modular_structure_terraforminstall
+  - stage: terraform_modular_structure_terraform
     jobs:
       - job: terraform_modular_structure_terraforminstall
         displayName: terraform_modular_structure_terraforminstall
@@ -14,31 +15,43 @@ stages:
             - task: TerraformInstaller@1
               inputs:
                 terraformVersion: 'latest'
-  - stage: terraform_modular_structure_init
-    jobs:
-      - job: terraform_modular_structure_init
-        displayName: terraform_modular_structure_init
+      - job: terraform_modular_structure_terraform_init
+        displayName: terraform_modular_structure_terraform_init
         steps:
             - task: TerraformTask@5
               inputs:
                 provider: 'azurerm'
                 command: 'init'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
                 backendServiceArm: 'Azure subscription 1(2530114a-1411-4234-ad42-e376b6598826)'
                 backendAzureRmStorageAccountName: 'tfpipelinestg14082026'
                 backendAzureRmContainerName: 'tfpipelinecontainer1914'
                 backendAzureRmKey: 'pipeline.tfstate'
-  - stage: terraform_modular_structure_plan
-    jobs:
-      - job: terraform_modular_structure_plan
-        displayName: terraform_modular_structure_plan
+          
+      - job: terraform_modular_structure_terraform_plan
+        dependsOn: terraform_modular_structure_terraform_init
+        displayName: terraform_modular_structure_terraform_plan
         steps:
             - task: TerraformTask@5
               inputs:
                 provider: 'azurerm'
                 command: 'plan'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
+      - job: terraform_modular_structure_terraform_apply
+        dependsOn: terraform_modular_structure_terraform_plan
+        displayName: terraform_modular_structure_terraform_apply
+        steps:
+            - task: TerraformTask@5
+              inputs:
+                provider: 'azurerm'
+                command: 'apply'
+                workingDirectory: '$(System.DefaultWorkingDirectory)/parent_modules'
+                commandOptions: '-auto-approve'
                 environmentServiceNameAzureRM: 'Azure subscription 1(2530114a-1411-4234-ad42-e376b6598826)'
 
+          
 
-
+           
+  
    
   
